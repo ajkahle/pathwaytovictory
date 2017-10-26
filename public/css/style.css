@@ -1,0 +1,46 @@
+.table-shrink{
+  margin-bottom:0px;
+  font-size:.85em;
+}
+
+.table-headers{
+  margin-bottom:0px;
+  width:98%;
+}
+
+th{
+  border-bottom:none !important;
+}
+
+tbody>tr>td{
+  border-left:2px solid black;
+}
+
+tbody>tr:nth-child(1)>td{
+  border-top:none !important;
+}
+
+:not(.input) + .input{
+  border-top: 2px solid black !important;
+}
+
+.contentDiv{
+  height:80%;
+  overflow-y: scroll;
+}
+
+.totalsDiv{
+  height:35%;
+  overflow-y: scroll;
+}
+
+.input>td{
+  vertical-align: middle !important;
+}
+
+input{
+  padding:2px 2px !important;
+  font-size:.85em !important;
+  width:95% !important;
+  height:30px !important;
+}

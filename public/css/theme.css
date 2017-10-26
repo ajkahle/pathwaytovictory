@@ -38,7 +38,7 @@ body{
 }
 
 .formRow{
-  margin: 2% 0%;
+  margin: 0% 1%;
 }
 
 .button{
@@ -59,11 +59,6 @@ body{
   color:#d50000;
   background-color:#ffebee;
   border: 1px solid #d50000;
-}
-
-h3{
-  font-weight:bold;
-  margin-top:0;
 }
 
 a{
@@ -103,16 +98,6 @@ a:visited{
   position:relative;
 }
 
-.singleTitle{
-  color: #2196f3;
-  border-bottom: 3px solid #2196f3;
-}
-
-.compareTitle{
-  color: #00e676;
-  border-bottom: 3px solid #00e676;
-}
-
 .dropdown-toggle{
   color:white;
 }
@@ -150,3 +135,17 @@ h1{
   padding-bottom:3px;
   border-bottom: solid 3px #2196f3;
 }
+
+.dark-blue-bg{background-color: #0069c0;}
+.light-blue-bg{background-color:#2196f3;}
+.green-bg{background-color:#00e676;}
+.red-bg{background-color: #d50000;}
+
+.dark-blue-color{color:#0069c0;}
+.light-blue-color{color:#2196f3;}
+.green-color{color:#00e676}
+.red-color{color:#d50000;}
+.white-color{color:white;}
+
+.bold{font-weight: bold;}
+.bolder{font-weight: bolder;}
