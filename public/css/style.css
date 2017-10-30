@@ -1,6 +1,6 @@
 .table-shrink{
   margin-bottom:0px;
-  font-size:.85em;
+  font-size:.75em;
 }
 
 .table-headers{
@@ -29,9 +29,17 @@ tbody>tr:nth-child(1)>td{
   overflow-y: scroll;
 }
 
+.wrapperRow{
+  padding-right: 0px;
+}
+
 .totalsDiv{
-  height:35%;
+  height:40%;
   overflow-y: scroll;
+}
+
+.vizDiv{
+  height:40%;
 }
 
 .input>td{

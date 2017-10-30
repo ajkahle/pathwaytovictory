@@ -1,12 +1,41 @@
 var startup = function(user){
   firebase.database().ref('/campaigns/7iRR7rziYmgc').once("value",function(rawData){
-    var data      = rawData.val(),
-        tables    = d3.selectAll(".contentRow").append("table")
-                      .datum(function(d){
-                        return d3.select(this.parentNode).attr("data-category")
-                      })
-                      .attr("class","table"),
-        colWidth  = 0;
+    var data        = rawData.val(),
+        tables      = d3.selectAll(".contentRow").append("table")
+                        .datum(function(d){
+                          return d3.select(this.parentNode).attr("data-category")
+                        })
+                        .attr("class","table"),
+        colWidth    = 0,
+        margins     = {top:20,right:20,bottom:30,left:40},
+        vizWidth    = d3.select("#totalViz").select("#barChart").node().getBoundingClientRect().width  - margins.right,
+        vizHeight   = d3.select("#vizDiv").node().getBoundingClientRect().height - margins.top,
+        g           = d3.select("#totalViz").selectAll("div").append("svg").attr("width",vizWidth).attr("height",vizHeight)
+                            .append("g").attr("transform","("+margins.left+","+margins.right+")"),
+        barX1       = d3.scaleBand().rangeRound([0,vizWidth]).paddingInner(.1),
+        barX2       = d3.scaleBand().padding(.05),
+        barY        = d3.scaleLinear().rangeRound([vizHeight,0]),
+        vizDetails  = {
+          margins:margins,
+          vizWidth:vizWidth,
+          vizHeight:vizHeight,
+          g:g,
+          barX1:barX1,
+          barX2:barX2,
+          barY:barY
+        };
+
+        vizDetails.barX1.domain(data.headers.rows["Vote Total"][0].subrows.map(function(d){
+          return d.name
+        }));
+        vizDetails.barX2.domain(data.headers.rows["Vote Total"].map(function(d){
+          return d.name
+        })).rangeRound([0,barX1.bandwidth()]);
+        vizDetails.barY.domain([0,d3.max(data.data.filter(function(d){
+          return d.subrow === "Registration" && d.group!="Data Type";
+        }),function(d){
+          return parseInt(d.value);
+        })]).nice();
 
       data.headers.columns.forEach(function(d){
         if(d.subrows.length>colWidth){
@@ -28,8 +57,12 @@ var startup = function(user){
             .text(function(d){
               return d.name;
             })
-            .attr("width",function(){
-              return (1/data.headers.columns.length)*100 + "%"
+            .attr("width",function(d,i){
+              if(i===0){
+                return "15%"
+              }else{
+                return (1/data.headers.columns.length)*100 + "%"
+              }
             })
             .append("table")
               .attr("class","table table-shrink")
@@ -42,8 +75,12 @@ var startup = function(user){
                 .text(function(d){
                   return d.name
                 })
-                .attr("width",function(d){
-                  return (1/colWidth)*100+"%"
+                .attr("width",function(d,i){
+                  if(i===0){
+                    return "15%"
+                  }else{
+                    return (1/colWidth)*100+"%"
+                  }
                 })
 
     tables.append("tbody")
@@ -100,7 +137,13 @@ var startup = function(user){
             })
           })
           .enter().append("td")
-            .attr("width","25%")
+            .attr("width",function(d,i){
+              if(i===0){
+                return "15%"
+              }else{
+                return (1/colWidth)*100+"%"
+              }
+            })
             .append("table")
               .attr("class","table table-shrink")
               .append("tr")
@@ -170,18 +213,23 @@ var startup = function(user){
           })
 
       $(".int").inputmask({"alias": "decimal",'groupSeparator':',','autoGroup':true});
+      $(".perc").inputmask({
+        "mask": "9{*}%",
+        onBeforeMask:function(value,opts){
+          return Math.round(parseFloat(value)*100).toString()
+        }
+      });
 
       setValues(data.headers,data.scenarios[Object.keys(data.scenarios)[0]].data);
       writeTotals(data.headers);
 
       d3.selectAll("input").on("change",function(e){
-        writeTotals(data.headers);
-      })
-
+        writeTotals(data.headers,vizDetails);
+      });
   });
 };
 
-var writeTotals = function(headers){
+var writeTotals = function(headers,vizDetails){
   var totalTds = d3.select("#totalContent").selectAll("td").filter(function(d){
     return d.row === "Input"
   })
@@ -213,7 +261,7 @@ var writeTotals = function(headers){
           return td.subgroup===subrow.name && td.group===group.name && td.subrow==="Total"
         }).text(
 
-        Math.round(
+        numberWithCommas(Math.round(
           inputs.filter(function(input){
               return input.table==="Support"
             }).reduce(function(a,d,i,array){
@@ -224,20 +272,25 @@ var writeTotals = function(headers){
 
               totalTds.filter(function(td){
                 return td.subgroup===d.subgroup && td.group===d.group && td.subrow ===d.subrow
-              }).text(Math.round(votingConstant*val))
+              }).text(numberWithCommas(Math.round(votingConstant*val)))
 
               if(isNaN(a)){
                 return (votingConstant*val)
               }else{
                 return a+(votingConstant*val)
               }
-            },0))
-          )
+            },0)))
+          );
+
+          
+
       }
-
     })
+  });
 
-  })
+
+
+
 }
 
 var setValues = function(headers,values){

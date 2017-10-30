@@ -86,14 +86,17 @@
       </div>
     </div>
 
-    <div id="myAccountModal" class="modal fade" tabindex="-1" role="dialog">
+    <div id="switchCampaign" class="modal fade" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title">My Account</h4>
+            <h4 class="modal-title">Switch Campaign</h4>
           </div>
           <div class="modal-body">
-
+            <div class="form-group">
+              <label>Campaigns</label>
+              <select id="campaign-select" class="form-control"></select>
+            </div>
           </div>
           <div class="modal-footer">
             <button class="btn btn-default button" id="saveButton">Save Changes</button>
@@ -111,8 +114,8 @@
 
               <div class="row col-xs-12">
                 <div name="headers" class="row">
-                  <div class="row col-xs-12">
-                    <div class="col-lg-12 tableHeaderRow" id="headerContent" data-category="Header">
+                  <div class="row col-xs-12 wrapperRow">
+                    <div class="col-lg-12 tableHeaderRow wrapperRow" id="headerContent" data-category="Header">
                     </div>
                   </div>
                 </div>
@@ -120,31 +123,31 @@
 
               <div class="contentDiv row col-xs-12">
                 <div name="population" class="row">
-                  <div class="row col-xs-12">
+                  <div class="row col-xs-12 wrapperRow">
                     <div class="headerRow">
                       <h4 class="categoryTitle">Population</h4>
                     </div>
-                    <div class="col-lg-12 contentRow" id="populationContent" data-category="Population">
+                    <div class="col-lg-12 contentRow wrapperRow" id="populationContent" data-category="Population">
                     </div>
                   </div>
                 </div>
 
                 <div name="support" class="row">
-                  <div class="row col-xs-12">
+                  <div class="row col-xs-12 wrapperRow">
                     <div class="headerRow">
                       <h4 class="categoryTitle">Support</h4>
                     </div>
-                    <div class="col-lg-12 contentRow" id="supportContent" data-category="Support">
+                    <div class="col-lg-12 contentRow wrapperRow" id="supportContent" data-category="Support">
                     </div>
                   </div>
                 </div>
 
                 <div name="turnout" class="row">
-                  <div class="row col-xs-12">
+                  <div class="row col-xs-12 wrapperRow">
                     <div class="headerRow">
                       <h4 class="categoryTitle">Turnout</h4>
                     </div>
-                    <div class="col-lg-12 contentRow" id="turnoutContent" data-category="Turnout">
+                    <div class="col-lg-12 contentRow wrapperRow" id="turnoutContent" data-category="Turnout">
                     </div>
                   </div>
                 </div>
@@ -152,10 +155,10 @@
 
             </div>
             <div class="col-lg-6">
-              <div class="row col-xs-12">
+              <div class="row col-xs-12 wrapperRow">
                 <div name="headers" class="row">
                   <div class="row col-xs-12">
-                    <div class="col-lg-12 tableHeaderRow" id="headerContent" data-category="Header">
+                    <div class="col-lg-12 tableHeaderRow wrapperRow" id="headerContent" data-category="Header">
                     </div>
                   </div>
                 </div>
@@ -163,11 +166,24 @@
 
               <div class="totalsDiv row col-xs-12">
                 <div name="totals" class="row">
-                  <div class="row col-xs-12">
+                  <div class="row col-xs-12 wrapperRow">
                     <div class="headerRow">
                       <h4 class="categoryTitle">Vote Total</h4>
                     </div>
-                    <div class="col-lg-12 contentRow" id="totalContent" data-category="Vote Total">
+                    <div class="col-lg-12 contentRow wrapperRow" id="totalContent" data-category="Vote Total">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="vizDiv row col-xs-12" id="vizDiv">
+                <div name="totals" class="row">
+                  <div class="row col-xs-12 wrapperRow">
+                    <div class="col-lg-12 contentRow wrapperRow" id="totalViz">
+                      <div class="col-lg-6" id="barChart">
+                      </div>
+                      <div class="col-lg-6" id="pieCharts">
+                      </div>
                     </div>
                   </div>
                 </div>

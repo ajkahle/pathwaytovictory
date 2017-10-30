@@ -43,6 +43,24 @@ $(document).ready(function(){
 
   $('#menu-switchCampaign').on('click',function(){
     $('#switchCampaign').modal();
+    firebase.db.ref('/campaigns').once(function(snapshot){
+      firebase.auth().onAuthStateChanged(function(user){
+        var campaigns = snapshot.val();
+          d3.select("#campaign-select").selectAll("option")
+            .data(Object.keys(campaigns).filter(function(d){
+              return user.campaigns.indexOf(d.name)>-1
+            }).map(function(d){
+              return {name:campaigns[d].name,id:d}
+            }))
+            .enter().append("option")
+              .attr("value",function(d){
+                return d.id
+              })
+              .text(function(d){
+                return d.name
+              })
+      });
+    })
   });
 
   $('#menu-logout').on('click',function(){
