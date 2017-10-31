@@ -37,6 +37,54 @@ var startup = function(user){
           return parseInt(d.value);
         })]).nice();
 
+        d3.select("#barChart").select("g").append("g")
+          .selectAll("g")
+            .data(data.headers.rows["Vote Total"][0].subrows.map(function(row){
+
+              console.log(row)
+
+              console.log(data.data.filter(function(d){
+                console.log(d)
+                return d.table === "Vote Total" && d.subrow === "Total" && d.group!="Data Type" && d.subrow === row.name
+              }))
+
+              return {key:row.name,value:data.data.filter(function(d){
+                return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === row.name
+              }).reduce(function(a,data,i,array){
+                return a+parseFloat(data.value)
+              },0)}
+            }))
+            .enter().append("g")
+              .attr("transform", function(d){return "translate(" + barX1(d.name) + ",0)"})
+              .selectAll("rect")
+                .data(function(d){
+                  return data.headers.rows["Vote Total"].map(function(row){
+                    return {value:d.value,key:row.name}
+                  })
+                })
+                .enter().append("rect")
+                  .attr("x", function(d) {console.log(d); return barX2(d.key); })
+                  .attr("y", function(d) { return barY(d.value); })
+                  .attr("width", barX2.bandwidth())
+                  .attr("height", function(d) { return vizHeight - barY(d.value); })
+
+        d3.select("#barChart").select("g").append("g")
+          .attr("class","axis")
+          .attr("transform", "translate(0," + vizHeight + ")")
+          .call(d3.axisBottom(barX1));
+
+        d3.select("#barChart").select("g").append("g")
+          .attr("class", "axis")
+          .call(d3.axisLeft(barY))
+        .append("text")
+          .attr("x", 2)
+          .attr("y", barY(barY.ticks()))
+          .attr("dy", "0.5em")
+          .attr("fill", "#000")
+          .attr("font-weight", "bold")
+          .attr("text-anchor", "start")
+          .text("Votes");
+
       data.headers.columns.forEach(function(d){
         if(d.subrows.length>colWidth){
           colWidth = d.subrows.length
@@ -282,7 +330,7 @@ var writeTotals = function(headers,vizDetails){
             },0)))
           );
 
-          
+
 
       }
     })
