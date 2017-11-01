@@ -39,31 +39,23 @@ var startup = function(user){
 
         d3.select("#barChart").select("g").append("g")
           .selectAll("g")
-            .data(data.headers.rows["Vote Total"][0].subrows.map(function(row){
-
-              console.log(row)
-
-              console.log(data.data.filter(function(d){
-                console.log(d)
-                return d.table === "Vote Total" && d.subrow === "Total" && d.group!="Data Type" && d.subrow === row.name
-              }))
-
-              return {key:row.name,value:data.data.filter(function(d){
-                return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === row.name
+            .data(data.headers.rows["Vote Total"][0].subrows.map(function(subrow){
+              return {party:subrow.name,value:data.data.filter(function(d){
+                return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === subrow.name
               }).reduce(function(a,data,i,array){
                 return a+parseFloat(data.value)
               },0)}
             }))
             .enter().append("g")
-              .attr("transform", function(d){return "translate(" + barX1(d.name) + ",0)"})
+              .attr("transform", function(d){return "translate(" + barX1(d.party) + ",0)"})
               .selectAll("rect")
                 .data(function(d){
                   return data.headers.rows["Vote Total"].map(function(row){
-                    return {value:d.value,key:row.name}
+                    return {value:d.value,year:row.name,party:d.party}
                   })
                 })
                 .enter().append("rect")
-                  .attr("x", function(d) {console.log(d); return barX2(d.key); })
+                  .attr("x", function(d) {console.log(d); return barX2(d.year); })
                   .attr("y", function(d) { return barY(d.value); })
                   .attr("width", barX2.bandwidth())
                   .attr("height", function(d) { return vizHeight - barY(d.value); })
