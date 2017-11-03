@@ -58,3 +58,8 @@ input{
   color:white;
   font-weight: bold;
 }
+
+.categoryTitle{
+  margin-top:0px;
+  margin-bottom:0px;
+}

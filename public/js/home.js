@@ -1,7 +1,7 @@
 var startup = function(user){
   firebase.database().ref('/campaigns/7iRR7rziYmgc').once("value",function(rawData){
     var data        = rawData.val(),
-        tables      = d3.selectAll(".contentRow").append("table")
+        tables      = d3.selectAll(".contentRow:not(.headerRow)").append("table")
                         .datum(function(d){
                           return d3.select(this.parentNode).attr("data-category")
                         })
@@ -21,14 +21,14 @@ var startup = function(user){
         pie         = d3.pie().value(function(d){return d.value}),
         t           = d3.transition().duration(1000).ease(d3.easeLinear),
         voteTotals  = data.headers.rows["Vote Total"].map(function(row){
-          return {year:row.name,votes:row.subrows.map(function(subrow){
-            return {party:subrow.name,value:data.data.filter(function(d){
-              return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === subrow.name && d.row === parseInt(row.name)
-            }).reduce(function(a,data,i,array){
-              return a+parseFloat(data.value)
-            },0)}
-          })}
-        }),
+                        return {year:row.name,votes:row.subrows.map(function(subrow){
+                          return {party:subrow.name,value:data.data.filter(function(d){
+                            return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === subrow.name && d.row === parseInt(row.name)
+                          }).reduce(function(a,data,i,array){
+                            return a+parseFloat(data.value)
+                          },0)}
+                        })}
+                      }),
         vizDetails  = {
           margins:margins,
           vizWidth:vizWidth,
@@ -152,6 +152,96 @@ var startup = function(user){
           colWidth = d.subrows.length
         }
       });
+
+      var headerRows = d3.selectAll(".headerRow")
+      .append("table")
+        .attr("class","table table-headers")
+        .append("thead").append("tr")
+        .selectAll("th")
+          .data(data.headers.columns)
+          .enter().append("th")
+          .attr("width",function(d,i){
+            if(i===0){
+              return "15%"
+            }else{
+              return (1/data.headers.columns.length)*100 + "%"
+            }
+          })
+          .append("div")
+            .attr("class",function(d,i){
+              if(i===0){
+                return "categoryTitle"
+              }else{
+                return "slider"
+              }
+            })
+
+      headerRows.attr("data-table",function(d){
+        return d3.select(d3.select(this).node().parentNode.parentNode.parentNode.parentNode.parentNode).attr("data-table")
+      })
+
+      headerRows.filter(function(d,i){
+        return d3.select(this).attr("class") === "categoryTitle"
+      }).append("h4")
+        .attr("class","categoryTitle")
+        .text(function(d){
+          return d3.select(this.parentNode).attr("data-table")
+        })
+
+      $(function(){
+        $(".slider").slider({
+          value:0,
+          min:-.5,
+          max:.5,
+          step:.05,
+          slide:function(e,ui){
+            var tableName = d3.select(this.parentNode.parentNode.parentNode.parentNode.parentNode).attr("data-table"),
+                inputData = d3.select(this.parentNode).datum(),
+                subrow    = "",
+                change    = 0,
+                totalDemoSupport = 0
+                if(tableName==="Support"){subrow = "[data-subrow='Dem']"}
+
+                inputs =  d3.selectAll("input[data-table='"+tableName+"'][data-group='"+inputData.name+"']"+subrow).each(function(d){
+                  var value = parseFloat(d3.select(this).attr("data-startValue"))*(1+ui.value)
+                  if(tableName!="Population"&&value>.99){value=.99}
+                  change = d3.select(this).attr("data-startValue") - value
+                  d3.select(this).property("value",value)
+                })
+
+                if(tableName==="Support"){
+                  inputs =  d3.selectAll("input[data-table='"+tableName+"'][data-group='"+inputData.name+"'][data-subrow='GOP']").each(function(d){
+                    var value     = parseFloat(d3.select(this).attr("data-startValue"))+change,
+                        subgroup  = d3.select(this).attr("data-subgroup")
+                    if(value>.99){value=.99}
+                    if(value<.01){value=.01}
+                    d3.select(this).property("value",value)
+
+
+                    totalDemoSupport = d3.selectAll("input[data-table='"+tableName+"'][data-group='"+inputData.name+"'][data-subgroup='"+subgroup+"']").nodes().reduce(function(a,d,i,array){
+                      var value = parseInt(d.inputmask.unmaskedvalue())
+                      if(!d.inputmask.unmaskedvalue()){value = 0}
+                      return a+value
+                    },0)
+
+                    if(totalDemoSupport>100){
+                      d3.selectAll("input[data-table='"+tableName+"'][data-group='"+inputData.name+"'][data-subgroup='"+subgroup+"'][data-subrow='Other']").property("value",Math.max(0,100-totalDemoSupport)/100).attr("class","form-control perc");
+                    }
+                    if(totalDemoSupport<100){
+                      d3.selectAll("input[data-table='"+tableName+"'][data-group='"+inputData.name+"'][data-subgroup='"+subgroup+"'][data-subrow='Other']").property("value",Math.max(0,100-totalDemoSupport)/100).attr("class","form-control perc");
+                    }
+
+                  })
+                }
+
+            writeTotals(data.headers,vizDetails)
+          }
+        }).slider("pips",{
+          step:5,
+          labels:[]
+        })
+      })
+
 
       d3.selectAll(".tableHeaderRow")
         .append("table")
@@ -327,7 +417,14 @@ var startup = function(user){
             }
           })
 
-      $(".int").inputmask({"alias": "decimal",'groupSeparator':',','autoGroup':true,min:0});
+      $(".int").inputmask({
+        "alias": "decimal",
+        'groupSeparator':',',
+        'autoGroup':true,
+        min:0,
+        onBeforeMask:function(value){
+          return Math.round(parseFloat(value)).toString()
+        }});
       $(".perc").inputmask({
         "regex": "([1-9]([0-9])?|0)?%",
         onBeforeMask:function(value,opts){
@@ -557,6 +654,7 @@ var setValues = function(headers,values){
               return value.group===group.name && value.subgroup===subgroup.name && value.subrow===subrow && value.table===table
             });
 
+        d3.select(this).attr("data-startValue",inputVal[0].value)
         d3.select(this).property("value",inputVal[0].value);
 
       })
