@@ -84,3 +84,24 @@ $(document).ready(function(){
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+
+function tooltipDisplay(html,elem,event){
+  elem.style('opacity', .9).style("display","block")
+
+  if((d3.select("body").node().getBoundingClientRect().width-event.clientX)<elem.node().getBoundingClientRect().width+50){
+    var tooltipX = -(20 + elem.node().getBoundingClientRect().width)
+  }else{var tooltipX = 20}
+
+  if((d3.select("body").node().getBoundingClientRect().height-event.clientY)<elem.node().getBoundingClientRect().height+30){
+    var tooltipY = -(elem.node().getBoundingClientRect().height-20)
+  }else{var tooltipY = -15}
+
+  elem.style('left', (event.clientX + tooltipX) + 'px').style('top',  (event.clientY + tooltipY) + 'px')
+
+  elem.html(html)
+}
+
+var tooltipHide = function tooltipHide(elem){
+  elem.style("display","none")
+}

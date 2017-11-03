@@ -149,3 +149,12 @@ h1{
 
 .bold{font-weight: bold;}
 .bolder{font-weight: bolder;}
+
+.tooltip{
+  display:none;
+  position: fixed;
+  padding: 0 10px;
+  background: white;
+  opacity:0;
+  box-shadow: 3px;
+}
