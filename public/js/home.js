@@ -321,6 +321,11 @@ var startup = function(user){
           .attr("data-subgroup",function(d){
             return d.subgroup
           })
+          .attr("readonly",function(d){
+            if(d.subrow==="Other"){
+              return "readonly"
+            }
+          })
 
       $(".int").inputmask({"alias": "decimal",'groupSeparator':',','autoGroup':true,min:0});
       $(".perc").inputmask({
@@ -336,6 +341,29 @@ var startup = function(user){
       d3.selectAll("input").on("change",function(e){
         writeTotals(data.headers,vizDetails);
       });
+
+      d3.selectAll("input").filter(function(d){
+        return d3.select(this).attr("data-table") === "Support"
+      }).on("change",function(e){
+
+        var totalDemoSupport = d3.selectAll("input").filter(function(d){
+          return e.group===d3.select(this).attr("data-group") && e.subgroup===d3.select(this).attr("data-subgroup") && d3.select(this).attr("data-table")==="Support" && d3.select(this).attr("data-subrow")!="Other"
+        }).nodes().reduce(function(a,d,i,array){
+          return a+parseInt(d.inputmask.unmaskedvalue())
+        },0)
+
+        if(totalDemoSupport<=100){
+          d3.selectAll("input").filter(function(d){
+            return e.group===d3.select(this).attr("data-group") && e.subgroup===d3.select(this).attr("data-subgroup") && d3.select(this).attr("data-table")==="Support" && d3.select(this).attr("data-subrow")==="Other"
+          }).property("value",(100-totalDemoSupport)/100).attr("class","form-control perc");
+          writeTotals(data.headers,vizDetails);
+        }else{
+          d3.selectAll("input").filter(function(d){
+            return e.group===d3.select(this).attr("data-group") && e.subgroup===d3.select(this).attr("data-subgroup") && d3.select(this).attr("data-table")==="Support" && d3.select(this).attr("data-subrow")==="Other"
+          }).property("value","").attr("class","form-control perc input-warning");
+          writeTotals(data.headers,vizDetails);
+        }
+      })
   });
 };
 
@@ -374,7 +402,7 @@ var writeTotals = function(headers,vizDetails){
           return a.val*d.val
         }
       })/100
-      if(votingConstant>0){
+      if(votingConstant>=0){
         totalTds.filter(function(td){
           return td.subgroup===subrow.name && td.group===group.name && td.subrow==="Total"
         }).text(
@@ -452,7 +480,6 @@ var writeTotals = function(headers,vizDetails){
         .attr("y", function(d){return vizDetails.barY(Math.round(d.value))})
         .attr("height", function(d){return vizDetails.vizHeight - vizDetails.barY(Math.round(d.value))})
 
-
     bars.exit().remove()
 
     groups.exit().remove()
@@ -482,15 +509,11 @@ var writeTotals = function(headers,vizDetails){
 
     var totalVotes = new Object;
 
-    console.log(vizDetails.voteTotals)
-
     vizDetails.voteTotals.forEach(function(year){
       totalVotes[year.year] = year.votes.reduce(function(a,d,i,array){
         return a+d.value
       },0)
     })
-
-    console.log(totalVotes)
 
     groups.selectAll("rect")
       .on("mousemove",function(d){
