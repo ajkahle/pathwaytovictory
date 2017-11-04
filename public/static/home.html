@@ -55,6 +55,7 @@
     <div id="loginModal" class="modal fade" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
+          <form action="javascript:void(0);">
           <div class="modal-header">
             <h3 class="modal-title light-blue-color bolder">Log In</h4>
           </div>
@@ -71,6 +72,26 @@
           <div class="modal-footer">
             <button class="btn btn-default button green-bg white bold" id="login-button">Log In</button>
           </div>
+        </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="errorModal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form action="javascript:void(0);">
+            <div class="modal-header">
+              <h4 class="modal-title text-danger">Error</h4>
+            </div>
+            <div class="modal-body bg-danger">
+              <div id="error-message">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn button errorButton" id="errorOkButton" data-dismiss="modal">Ok</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -78,16 +99,27 @@
     <div id="myAccountModal" class="modal fade" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">My Account</h4>
-          </div>
-          <div class="modal-body">
-
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default button" id="saveButton">Save Changes</button>
-            <button class="btn btn-default button" id="cancelButton">Cancel</button>
-          </div>
+          <form action="javascript:void(0);">
+            <div class="modal-header">
+              <h4 class="modal-title">My Account</h4>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="form-group col-md-6">
+                  <label>First Name</label>
+                  <input type="text" class="form-control" id="account-fname"></input>
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Last Name</label>
+                  <input type="text" class="form-control" id="account-lname"></input>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-default button" id="accountSaveButton">Save Changes</button>
+              <button class="btn btn-default button" id="accountCancelButton">Cancel</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -95,19 +127,20 @@
     <div id="switchCampaign" class="modal fade" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Switch Campaign</h4>
-          </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label>Campaigns</label>
-              <select id="campaign-select" class="form-control"></select>
+          <form action="javascript:void(0);">
+            <div class="modal-header">
+              <h4 class="modal-title">Switch Campaign</h4>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-default button" id="saveButton">Save Changes</button>
-            <button class="btn btn-default button" id="cancelButton">Cancel</button>
-          </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label>Campaigns</label>
+                <select id="campaign-select" class="form-control"></select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-default button" id="campaignChangeButton">Select</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -184,10 +217,10 @@
               <div class="vizDiv row col-xs-12" id="vizDiv">
                 <div name="totals" class="row">
                   <div class="row col-xs-12 wrapperRow">
-                    <div class="col-lg-12 contentRow wrapperRow" id="totalViz">
-                      <div class="col-lg-6" id="barChart">
+                    <div class="col-lg-12 wrapperRow" id="totalViz">
+                      <div class="col-lg-6 contentRow" id="barChart">
                       </div>
-                      <div class="col-lg-6" id="pieCharts">
+                      <div class="col-lg-6 contentRow" id="pieCharts">
                       </div>
                     </div>
                   </div>

@@ -12,74 +12,168 @@ $(document).ready(function(){
 
   firebase.auth().onAuthStateChanged(function(user){
     if (user) {
-      startup(user);
+      checkCampaigns(user)
     } else {
+      reset();
       $('#loginModal').modal({
         keyboard:false,
         backdrop:"static"
       });
+    }
+  },function(err){
+    if(err){
+      console.log(err)
     }
   });
 
   $('#login-button').on('click',function(){
     var email     = $('#login-email').val(),
         password  = $('#login-password').val();
-    firebase.auth().signInWithEmailAndPassword(email, password).catch(function(err) {
+    firebase.auth().signInWithEmailAndPassword(email, password).then(function(user){
+      $('#loginModal').modal('hide');
+    }).catch(function(err) {
       console.log(err)
       $('#error-message').text(err.message)
-      $('#errorModal').modal({
-        keyboard:false,
-        backdrop:"static"
-      });
-    }).then(function(user){
-      $('#loginModal').modal('hide');
-      startup(user);
+      $('#errorModal').modal();
     });
   });
 
   $('#menu-myAccount').on('click',function(){
-    $('#myAccountModal').modal();
+    firebase.auth().onAuthStateChanged(function(user){
+      if (user) {
+        firebase.database().ref('/users/'+user.uid).once("value",function(snapshot){
+          var userData = snapshot.val()
+          $('#account-fname').val(userData.fname)
+          $('#account-lname').val(userData.lname)
+          $('#account-email').val(userData.email)
+          $('#myAccountModal').modal();
+        })
+      } else {
+        reset();
+        $('#loginModal').modal({
+          keyboard:false,
+          backdrop:"static"
+        });
+      }
+    },function(err){
+      if(err){
+        console.log(err)
+      }
+    });
   });
 
+  $('#accountSaveButton').on('click',function(){
+    firebase.auth().onAuthStateChanged(function(user){
+      var userAccount = firebase.auth().currentUser;
+      if (user) {
+        var push = {
+          fname:$('#account-fname').val(),
+          lname:$('#account-lname').val()
+        }
+
+        firebase.database().ref('/users/'+user.uid).update(push).then(function(){
+          $('#myAccountModal').modal('hide')
+        })
+        /*
+        userAccount.updateEmail(push.email).then(function(){
+          $('#myAccountModal').modal('hide')
+        }).catch(function(err){
+          console.log(err)
+        })
+        */
+      } else {
+        reset();
+        $('#loginModal').modal({
+          keyboard:false,
+          backdrop:"static"
+        });
+      }
+    },function(err){
+      if(err){
+        console.log(err)
+      }
+    });
+  })
+
+  $('#accountCancelButton').on('click',function(){
+    $('#myAccountModal').modal('hide')
+  })
+
   $('#menu-switchCampaign').on('click',function(){
-    $('#switchCampaign').modal();
-    firebase.db.ref('/campaigns').once(function(snapshot){
-      firebase.auth().onAuthStateChanged(function(user){
-        var campaigns = snapshot.val();
-          d3.select("#campaign-select").selectAll("option")
-            .data(Object.keys(campaigns).filter(function(d){
-              return user.campaigns.indexOf(d.name)>-1
-            }).map(function(d){
-              return {name:campaigns[d].name,id:d}
-            }))
-            .enter().append("option")
-              .attr("value",function(d){
-                return d.id
-              })
-              .text(function(d){
-                return d.name
-              })
-      });
-    })
+    firebase.auth().onAuthStateChanged(function(user){
+      if (user) {
+        checkCampaigns(user)
+      } else {
+        reset();
+        $('#loginModal').modal({
+          keyboard:false,
+          backdrop:"static"
+        });
+      }
+    },function(err){
+      if(err){
+        console.log(err)
+      }
+    });
   });
+
+  $('#campaignChangeButton').on('click',function(){
+    reset()
+    startup($('#campaign-select').val());
+    $('#switchCampaign').modal('hide')
+  })
 
   $('#menu-logout').on('click',function(){
     firebase.auth().signOut().then(function() {
-      reset();
       $('#loginModal').modal({
         keyboard:false,
         backdrop:"static"
       });
     }).catch(function(error) {
       $('#error-message').text(error.message)
-      $('#errorModal').modal({
-        keyboard:false,
-        backdrop:"static"
-      });
+      $('#errorModal').modal();
     });
   });
 
+
+
 });
+
+var checkCampaigns = function(user){
+  firebase.database().ref('/users/'+user.uid+"/campaigns").once("value",function(snapshot){
+    var data = snapshot.val()
+    if(data.length>1){
+      setCampaignModal(data,null)
+    }else{
+      startup(data[0])
+    }
+  })
+}
+
+var setCampaignModal = function(campaigns,selected){
+  firebase.database().ref('/campaigns').once("value",function(snapshot){
+    var data = snapshot.val(),
+        options = campaigns.map(function(d){
+                    return {key:d,name:data[d].name}
+                  })
+    d3.select("#campaign-select").selectAll("option").remove()
+    d3.select("#campaign-select").selectAll("option")
+      .data(options)
+      .enter().append("option")
+      .attr("value",function(d){
+        return d.key
+      })
+      .text(function(d){
+        return d.name
+      })
+      .attr("selected",function(d){
+        if(d.key===selected){
+          return "selected"
+        }
+      })
+    $('#switchCampaign').modal()
+  })
+}
 
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

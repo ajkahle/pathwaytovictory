@@ -1,5 +1,5 @@
-var startup = function(user){
-  firebase.database().ref('/campaigns/7iRR7rziYmgc').once("value",function(rawData){
+var startup = function(campaign){
+  firebase.database().ref('/campaigns/'+campaign).once("value",function(rawData){
     var data        = rawData.val(),
         tables      = d3.selectAll(".contentRow:not(.headerRow)").append("table")
                         .datum(function(d){
@@ -461,6 +461,10 @@ var startup = function(user){
           writeTotals(data.headers,vizDetails);
         }
       })
+  },function(err){
+    if(err){
+      console.log(err)
+    }
   });
 };
 
@@ -660,4 +664,10 @@ var setValues = function(headers,values){
       })
     })
   })
+}
+
+var reset = function(){
+  d3.selectAll(".headerRow").selectAll("*").remove()
+  d3.selectAll(".contentRow").selectAll("*").remove()
+  d3.selectAll(".tableHeaderRow").selectAll("*").remove()
 }
