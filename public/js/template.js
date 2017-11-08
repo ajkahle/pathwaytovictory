@@ -5,7 +5,8 @@ var config = {
     projectId: "pathwaytovictory-400c3",
     storageBucket: "pathwaytovictory-400c3.appspot.com",
     messagingSenderId: "539080478131"
-  };
+  },
+  state = new Object;
   firebase.initializeApp(config);
 
 $(document).ready(function(){
@@ -118,9 +119,23 @@ $(document).ready(function(){
   });
 
   $('#campaignChangeButton').on('click',function(){
+    state.campaign = $('#campaign-select').val()
     reset()
     startup($('#campaign-select').val());
     $('#switchCampaign').modal('hide')
+  })
+
+  $('#menu-addNewScenario').on('click',function(){
+    $('#newScenario').modal()
+  })
+
+  $('#scenarioSaveButton').on('click',function(){
+    saveScenario($('#scenario-name').val(),state.campaign);
+    $('#newScenario').modal('hide')
+  })
+
+  $('#scenarioCancelButton').on('click',function(){
+    $('#newScenario').modal('hide')
   })
 
   $('#menu-logout').on('click',function(){
@@ -134,9 +149,6 @@ $(document).ready(function(){
       $('#errorModal').modal();
     });
   });
-
-
-
 });
 
 var checkCampaigns = function(user){
@@ -179,7 +191,6 @@ function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-
 function tooltipDisplay(html,elem,event){
   elem.style('opacity', .9).style("display","block")
 
@@ -198,4 +209,13 @@ function tooltipDisplay(html,elem,event){
 
 var tooltipHide = function tooltipHide(elem){
   elem.style("display","none")
+}
+
+var generateId = function(length) {
+        charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+        retVal = "";
+    for (var i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    return retVal;
 }

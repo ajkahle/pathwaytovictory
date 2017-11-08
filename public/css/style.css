@@ -69,7 +69,7 @@ input{
 }
 
 .ui-slider-horizontal.ui-slider-pips{
-    margin-bottom:.8em !important;
+  margin-bottom:.8em !important;
 }
 
 .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default{
