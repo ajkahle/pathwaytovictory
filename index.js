@@ -2,22 +2,10 @@ var express     = require('express'),
     Promise       = require('es6-promise').Promise,
     bodyParser    = require('body-parser'),
     cookieParser  = require('cookie-parser'),
-    session       = require('express-session'),
     http          = require('http'),
-    redis         = require('redis'),
-    redisStore    = require('connect-redis')(session),
     url           = require('url');
     require('dotenv').config();
 
-
-if (process.env.REDISTOGO_URL) {
-    var rtg   = url.parse(process.env.REDISTOGO_URL);
-    console.log(rtg)
-    var redClient = redis.createClient(rtg.port, rtg.hostname);
-    redClient.auth(rtg.auth.split(":")[1]);
-  } else {
-    var redClient = redis.createClient();
-  }
 
 var app = express(),
     server = http.createServer(app),
