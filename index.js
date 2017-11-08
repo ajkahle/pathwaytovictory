@@ -28,28 +28,7 @@ console.log("http server listening on %d", port);
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true })); // default is changing in future, so set to true for now so it can handle nested stuff to parse
-var sessionHandler = session({
-  store: new redisStore({ host: 'localhost', port: 6379, client: redClient }),
-  secret:'pocket_square',
-  resave: false, // default is changing in the future, so set now explicitly to a safe default
-  saveUninitialized: false}); // default is changing in the future, so set now explicitly to a safe default
-app.use(sessionHandler);
 app.use(express.static(__dirname + '/public'));
-
-app.use(function(req,res,next){
-  if(req.session.user){
-    if(req.session.user.pages.indexOf(req.path)>-1||req.get('host')==='localhost:5000'){
-      next();
-    }
-    else{
-      res.redirect('/');
-    }
-  }else if(req.get('host')==='localhost:5000'){
-    next()
-  }else{
-    res.redirect('/');
-  }
-});
 
 app.get('/',function(req,res){
   res.sendFile(__dirname+'/public/static/home.html');
