@@ -21,3 +21,7 @@ app.use(express.static(__dirname + '/public'));
 app.get('/',function(req,res){
   res.sendFile(__dirname+'/public/static/home.html');
 });
+
+app.get('/admin',function(req,res){
+  res.sendFile(__dirname+'/public/static/admin.html');
+});

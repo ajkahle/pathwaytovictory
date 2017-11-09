@@ -1,0 +1,218 @@
+<html>
+  <head>
+    <title>Pathway to Victory - Admin</title>
+      <link href="https://fonts.googleapis.com/css?family=Roboto|Raleway" rel="stylesheet">
+      <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+      <script src="https://d3js.org/d3.v4.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.4/lodash.min.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/4.5.2/firebase.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/async/2.5.0/async.min.js"></script>
+      <script src="./js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
+      <script src="./js/jquery-ui-slider-pips.js" type="text/javascript"></script>
+      <script src="./js/inputmask.min.js" type="text/javascript"></script>
+      <script src="./js/jquery.inputmask.bundle.min.js" type="text/javascript"></script>
+      <script src="./js/inputmask.numeric.extensions.min.js" type="text/javascript"></script>
+      <link rel="stylesheet" type="text/css" href="./css/style.css">
+      <link rel="stylesheet" type="text/css" href="./css/theme.css">
+      <link rel="stylesheet" type="text/css" href="./css/jquery-ui-1.10.4.custom.min.css">
+      <link rel="stylesheet" type="text/css" href="./css/jquery-ui-slider-pips.css">
+      <script type="text/javascript" src="./js/admin.js"></script>
+      <link rel="icon" type="image/png" href="./blue_logo.png">
+  </head>
+
+  <body>
+    <div class="tooltip">
+    </div>
+    <div class="loading">
+      <img src="../blue_spinner.gif">
+    </div>
+    <div class="header-header">
+    </div>
+    <div class="header">
+      <div class="logo-wrapper">
+        <img class="navbar-logo" alt="Pathway to Victory" src="./white_logo.png">
+      </div>
+      <div class="header-title">
+        Pathway to Victory
+      </div>
+      <div class="subHeader">
+        Admin Panel
+      </div>
+      <div role="presentation" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Account<span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a class="menu-item"id="menu-logout">Log Out</a></li>
+        </ul>
+      </div>
+      <div role="presentation" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Admin<span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a id="menu-users">Users</a></li>
+          <li><a id="menu-campaigns">Campaigns</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="loginModal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form action="javascript:void(0);">
+          <div class="modal-header">
+            <h3 class="modal-title light-blue-color bolder">Log In</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" class="form-control" id="login-email"></input>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" class="form-control" id="login-password"></input>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default button green-bg white bold" id="login-button">Log In</button>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="errorModal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form action="javascript:void(0);">
+            <div class="modal-header">
+              <h4 class="modal-title text-danger">Error</h4>
+            </div>
+            <div class="modal-body bg-danger">
+              <div id="error-message">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn button errorButton" id="errorOkButton" data-dismiss="modal">Ok</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="newUserModal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form action="javascript:void(0);">
+            <div class="modal-header">
+              <h4 class="modal-title">New User</h4>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="form-group col-md-6">
+                  <label>First Name</label>
+                  <input type="text" class="form-control" id="account-fname"></input>
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Last Name</label>
+                  <input type="text" class="form-control" id="account-lname"></input>
+                </div>
+              </div>
+              <div class="row">
+                <div class="form-group col-md-6">
+                  <label>Email</label>
+                  <input type="text" class="form-control" id="account-email"></input>
+                </div>
+                <div class="form-group col-md-6">
+                  <label>Campaign</label>
+                  <select class="form-control" id="account-campaign"></select>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-default button" id="accountSaveButton">Create User</button>
+              <button class="btn btn-default button" id="accountCancelButton">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="newModalModal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <form action="javascript:void(0);">
+            <div class="modal-header">
+              <h4 class="modal-title">New Campaign</h4>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="form-group col-md-6">
+                  <label>Campaign Name</label>
+                  <input type="text" class="form-control" id="account-fname"></input>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-default button" id="accountSaveButton">Create Campaign</button>
+              <button class="btn btn-default button" id="accountCancelButton">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row formRow">
+        <div class="col-xs-12">
+          <div class="row">
+            <div class="col-lg-6" id="inputContent">
+
+              <div class="row col-xs-12">
+                <div name="headers" class="row">
+                  <div class="row col-xs-12 wrapperRow">
+                    <div class="col-lg-12 tableHeaderRow wrapperRow" id="headerContent" data-category="Header">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="contentDiv row col-xs-12">
+                <div name="population" class="row">
+                  <div class="row col-xs-12 wrapperRow">
+                    <div class="headerRow col-lg-12 contentRow wrapperRow">
+
+                    </div>
+                    <div class="col-lg-12 contentRow wrapperRow" id="tableContent">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+
+              <div class="totalsDiv row col-xs-12">
+                <div name="totals" class="row">
+                  <div class="row col-xs-12 wrapperRow">
+                    <div>
+                      <h4></h4>
+                    </div>
+                    <div class="col-lg-12 contentRow wrapperRow" id="formContent">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+
+</html>
