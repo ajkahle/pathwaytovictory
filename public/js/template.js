@@ -6,9 +6,21 @@ var config = {
     storageBucket: "pathwaytovictory-400c3.appspot.com",
     messagingSenderId: "539080478131"
   },
+//  host  = location.origin.replace(/^http/, 'ws'),
+//  ws    = new WebSocket(host),
   state = new Object;
   firebase.initializeApp(config);
+/*
+  ws.onopen = function(event){
+      console.log('connected')
+      ws.send(JSON.stringify({state: "",office: "",district: ""}))
+    }
 
+  ws.onmessage = function(event){
+    var dataId  = JSON.parse(event.data).id
+    var data    = JSON.parse(event.data).data
+  }
+*/
 $(document).ready(function(){
 
   firebase.auth().onAuthStateChanged(function(user){
@@ -219,3 +231,41 @@ var generateId = function(length) {
     }
     return retVal;
 }
+
+var getWeeks = function(startDate, endDate, weekStart) {
+
+  var dates = [],
+      currentDate = startDate,
+      addDays = function(days) {
+        var date = new Date(this.valueOf());
+        date.setDate(date.getDate() + days);
+        return date;
+      };
+
+  while (currentDate <= endDate) {
+    if(currentDate.getDay()===weekStart){
+        dates.push(currentDate.toString());
+    }
+    currentDate = addDays.call(currentDate, 1);
+  }
+  return dates;
+};
+
+var getMonths = function(startDate, endDate) {
+
+  var dates = [],
+      currentDate = startDate,
+      addDays = function(days) {
+        var date = new Date(this.valueOf());
+        date.setDate(date.getDate() + days);
+        return date;
+      };
+
+  while (currentDate <= endDate) {
+    if(currentDate.getDate()===1){
+        dates.push(currentDate.toString());
+    }
+    currentDate = addDays.call(currentDate, 1);
+  }
+  return dates;
+};

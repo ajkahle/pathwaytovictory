@@ -16,7 +16,7 @@ th{
   border-bottom:none !important;
 }
 
-tbody>tr>td{
+tbody.table-shrink>tr>td{
   border-left:2px solid black;
 }
 
@@ -78,4 +78,23 @@ input{
 
 .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active{
   background-color:#0069c0 !important;
+}
+
+.assumptionRow>h3{
+  margin-top:0px !important;
+  margin-bottom: 0px !important;
+}
+
+.assumptionRow>h4{
+  margin-top:0px !important;
+  margin-bottom: 0px !important;
+}
+
+.assumptionRow>div>.form-group{
+  margin-bottom: 3px !important;
+  font-size:.9em !important;
+}
+
+#assumptionContent>.contentDiv{
+  height: 35%;
 }
