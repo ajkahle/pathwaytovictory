@@ -1,5 +1,13 @@
+$(document).ready(function(){
+  $(function() {
+      $('.matchHeight').matchHeight();
+  });
+});
+
+var colorScale = ["#0069c0","#2196f3","#00e676","#d50000","#0069c0","#2196f3","#00e676","#d50000"]
+
 var startup = function(campaign,scenario){
-  firebase.database().ref('/campaigns/'+campaign).once("value",function(rawData){
+  firebase.database().ref('/campaigns/'+campaign+'/goals').once("value",function(rawData){
       var data        = rawData.val(),
           colWidth    = 0,
           margins     = {top:10,right:10,bottom:30,left:40}
@@ -91,21 +99,53 @@ var startup = function(campaign,scenario){
             .attr("id",function(d){
               return d.rawDate.split(' ')[1] + "-" + d.rawDate.split(' ')[3]
             })
-/*
-    d3.select("#calendarDiv").select("tbody")
-      .selectAll("tr")
-        .data()
+
+      var calendarTable = d3.select("#calendarContent")
+          .select("table")
+          .selectAll("tbody")
+            .data(Object.keys(data.categories).map(function(d){
+              return {
+                name:d,
+                label:data.categories[d].label,
+                rows:data.categories[d].rows
+              }
+            }))
+            .enter().append("tbody")
+
+        calendarTable.append("h4")
+              .text(function(d){
+                return d.label
+              })
+              .attr("data-toggle","collapse")
+              .attr("data-target","#inputContent")
+
+    calendarTable.selectAll("tr")
+          .data(function(d){
+            return d.rows
+          })
         .enter().append("tr")
         .selectAll("td")
           .data(function(row){
-            headers.map(function(col){
-              return {
-                col:col,row:row
+            return headers.map(function(col){
+              if(col.name==="header"){
+                return {
+                  col:col,row:row,val:row.label
+                }
+              }else{
+                return {
+                  col:col,row:row,val:""
+                }
               }
             })
           })
           .enter().append("td")
-*/
+            .attr("width",function(d){
+              return d.col.width
+            })
+            .text(function(d){
+              return d.val
+            })
+
     $(".int").inputmask({
       "alias": "decimal",
       'groupSeparator':',',
@@ -121,8 +161,33 @@ var startup = function(campaign,scenario){
       }
     });
 
-    setValues(data.goals.defaults,function(err){
-      console.log(err)
+    $("#slider").slider({
+      value:.2,
+      min:.1,
+      max:.3,
+      step:.01,
+      slide:function(e,ui){
+        console.log(ui.value)
+        writeTotals()
+      }
+    }).slider("pips",{
+      rest:false,
+      labels:{
+        "first":"10%",
+        "last":"30%"
+      }
+    }).slider("float",{
+      formatLabel:function(val){
+        return (val*100).toFixed(0) + "%"
+      }
+    })
+
+    d3.selectAll("input").on("change",function(){
+      writeTotals();
+    })
+
+    setValues(data.defaults,function(err){
+      writeTotals();
     })
 
   },function(err){
@@ -132,191 +197,150 @@ var startup = function(campaign,scenario){
   });
 };
 
-var calcTotals = function(){
-  
+var getTotals = function(){
+  var totals     = d3.select("#pathway-totals").selectAll("input").nodes(),
+      percentage = $("#slider").slider("value"),
+      data       = new Object;
+
+  totals.forEach(function(d){
+    data[d3.select(d).attr("id").split("-")[0]] = (d.inputmask.unmaskedvalue()*percentage)
+  })
+
+  return data
 }
 
-var writeTotals = function(headers,vizDetails){
-  var totalTds = d3.select("#totalContent").selectAll("td").filter(function(d){
-    return d.row === "Input"
-  }),
-      voteYear      = headers.rows["Vote Total"][headers.rows["Vote Total"].length-1]["name"]
-      parties       = new Object;
+var calcTotals = function(){
 
-      vizDetails.voteTotals.filter(function(year){
-        return year.year === voteYear
-      })[0].votes.forEach(function(d){
-        d.value = 0
-      })
+  var programTotals             = getTotals(),
+      data                      = new Object;
+      data.totals               = new Object;
+      data.totals.totals        = new Object;
+      data.totals.totals.conversions      = 0
+      data.totals.totals.contacts         = 0
+      data.totals.totals.attempts         = 0
+      data.totals.totals.shifts           = 0
+      metrics                   = Object.keys(programTotals).forEach(function(program){
+      data[program]             = new Object;
+    return d3.select("#"+program).select("tr").selectAll("input").nodes().forEach(function(input){
+      var id                  = d3.select(input).attr("id"),
+          tactic              = id.split('-')[0],
+          metric              = id.split('-')[1],
+          prog                = parseFloat(d3.select("#"+tactic+"-program").node().inputmask.unmaskedvalue())/100,
+          conv                = parseFloat(d3.select("#"+tactic+"-conversion").node().inputmask.unmaskedvalue())/100,
+          cont                = parseFloat(d3.select("#"+tactic+"-contact").node().inputmask.unmaskedvalue())/100,
+          _conv               = programTotals[program] * prog,
+          _cont               = _conv/conv,
+          _attm               = _cont/cont,
+          _shift              = null;
+          data.totals[tactic] = new Object;
+          data.totals[tactic]["conversions"]  = 0
+          data.totals[tactic]["contacts"]     = 0
+          data.totals[tactic]["attempts"]     = 0
+          data.totals[tactic]["shifts"]       = 0
 
-  headers.columns.filter(function(d){
-    return d.name!="Data Type"
-  }).map(function(group){
-     group.subrows.map(function(subrow){
-      var inputs =  d3.selectAll("input[data-group='"+group.name+"'][data-subgroup='"+subrow.name+"']").nodes().map(function(input){
-        return {
-            val:parseFloat(input.inputmask.unmaskedvalue()),
-            table:d3.select(input).attr("data-table"),
-            group:d3.select(input).attr("data-group"),
-            subgroup:d3.select(input).attr("data-subgroup"),
-            row:d3.select(input).attr("data-row"),
-            subrow:d3.select(input).attr("data-subrow")}
-      }),
-      votingConstant = inputs.filter(function(input){
-        return input.table!="Support"
-      }).reduce(function(a,d,i,array){
-        if(isNaN(a.val*d.val)){
-          return 0
-        }else{
-          return a.val*d.val
-        }
-      })/100
-      if(votingConstant>=0){
-        totalTds.filter(function(td){
-          return td.subgroup===subrow.name && td.group===group.name && td.subrow==="Total"
-        }).text(
+          if(d3.select("#"+tactic+"-attempts").node()){
+            shift   = d3.select("#"+tactic+"-attempts").node().inputmask.unmaskedvalue(),
+            _shift  = _attm/shift
+          }
 
-        numberWithCommas(Math.round(
-          inputs.filter(function(input){
-              return input.table==="Support"
-            }).reduce(function(a,d,i,array){
-              var val = 0;
-              if(!isNaN(d.val)){
-                val = d.val/100
-              }
+          data.totals.totals.conversions      += _conv
+          data.totals.totals.contacts         += _cont
+          data.totals.totals.attempts         += _attm
+          data.totals.totals.shifts           += _shift
 
-              totalTds.filter(function(td){
-                return td.subgroup===d.subgroup && td.group===d.group && td.subrow ===d.subrow
-              }).text(numberWithCommas(Math.round(votingConstant*val)))
+          data.totals[tactic]["conversions"]  += _conv
+          data.totals[tactic]["contacts"]     += _cont
+          data.totals[tactic]["attempts"]     += _attm
+          data.totals[tactic]["shifts"]       += _shift
 
-              if(!parties[d.subrow]){
-                parties[d.subrow] = 0
-              }
-
-              parties[d.subrow]+=(votingConstant*val)
-
-              vizDetails.voteTotals.filter(function(year){
-                return year.year === voteYear
-              })[0].votes.filter(function(party){
-                return party.party === d.subrow
-              })[0].value+=(votingConstant*val)
-
-              if(isNaN(a)){
-                return (votingConstant*val)
-              }else{
-                return a+(votingConstant*val)
-              }
-            },0)))
-          );
-      }
+           data[program][tactic] = {
+              conversions :_conv,
+              contacts    :_cont,
+              attempts    :_attm,
+              shifts      :_shift
+          }
     })
-  });
+  })
 
-  var groups = d3.select("#barChart").selectAll(".group")
-    .data(vizDetails.voteTotals[0].votes)
+  return data
+}
 
-    groups.enter().append(".group")
-      .attr("transform", function(d){return "translate(" + vizDetails.barX1(d.party) + ",0)"})
+var writeTotals = function(){
+  var totals = calcTotals()
 
-    groups.merge(groups)
-      .attr("transform", function(d){return "translate(" + vizDetails.barX1(d.party) + ",0)"})
-
-
-  var bars = groups.selectAll("rect")
-    .data(function(d){
-      return vizDetails.voteTotals.map(function(row){
-        if(row.year===voteYear){
-          return {value:parties[d.party],year:row.year,party:d.party}
-        }else{
-          return {value:d.value,year:row.year,party:d.party}
-        }
-      })
+  d3.selectAll("#calendarContent").selectAll("td").filter(function(td){
+    return td.col.name != "header"
+  }).each(function(td){
+    d3.select(this).text(function(d){
+      var ramp = d3.select("input#"+td.col.rawDate.split(' ')[1] + "-" + td.col.rawDate.split(' ')[3]).node().inputmask.unmaskedvalue()
+      return numberWithCommas((totals.totals[td.row.name.split('-')[0]][td.row.name.split('-')[1]] * (parseInt(ramp)/100)).toFixed(0))
     })
+  })
 
-  bars.enter().append("rect")
-    .attr("x", function(d){console.log(d); return vizDetails.barX2(d.year)})
-    .attr("fill",function(d){return vizDetails.colorScale(d.party)})
-    .attr("width", vizDetails.barX2.bandwidth())
-    .attr("y", function(d){return vizDetails.barY(Math.round(d.value))})
-    .attr("height", function(d){return vizDetails.vizHeight - vizDetails.barY(Math.round(d.value))})
-
-    bars.merge(bars)
-        .attr("x", function(d){return vizDetails.barX2(d.year)})
-        .attr("fill",function(d){return vizDetails.colorScale(d.party)})
-        .attr("width", vizDetails.barX2.bandwidth())
-        .transition(vizDetails.t)
-        .attr("y", function(d){return vizDetails.barY(Math.round(d.value))})
-        .attr("height", function(d){return vizDetails.vizHeight - vizDetails.barY(Math.round(d.value))})
-
-    bars.exit().remove()
-
-    groups.exit().remove()
-
-    var pieUpdate = d3.select("g#year-"+voteYear)
-      .selectAll(".arc")
-        .data(vizDetails.pie(Object.keys(parties).map(function(d){
-          return {value:parties[d],party:d,year:voteYear}
-        })))
-
-    var arcs = pieUpdate.selectAll("path")
-        .data(function(d){
-          return [d]
-        })
-
-    arcs.merge(pieUpdate)
-      .attr("d",vizDetails.arc)
-      .style("fill",function(d){
-        return vizDetails.colorScale(d.data.party)
-      })
-
-    arcs.enter().append("path")
-      .attr("d",vizDetails.arc)
-      .style("fill",function(d){
-        return vizDetails.colorScale(d.data.party)
-      })
-
-    var totalVotes = new Object;
-
-    vizDetails.voteTotals.forEach(function(year){
-      totalVotes[year.year] = year.votes.reduce(function(a,d,i,array){
-        return a+d.value
-      },0)
-    })
-
-    groups.selectAll("rect")
-      .on("mousemove",function(d){
-        var html = "<div><b>Party: </b>"+d.party+"<br>"+
-                        "<b>Year: </b>"+d.year+"<br>"+
-                        "<b>Votes: </b>"+numberWithCommas(Math.round(d.value))+" <i>("+(100*d.value/totalVotes[d.year]).toFixed(1)+"%)</i>"+"<br>"+
-                    "</div>"
-        tooltipDisplay(html,d3.select(".tooltip"),d3.event)
-      })
-      .on("mouseout",function(){
-        tooltipHide(d3.select(".tooltip"))
-      })
-
-    d3.select("#pieCharts").selectAll("path")
-      .on("mousemove",function(d){
-        var html = "<div><b>Party: </b>"+d.data.party+"<br>"+
-                        "<b>Year: </b>"+d.data.year+"<br>"+
-                        "<b>Votes: </b>"+numberWithCommas(Math.round(d.value))+" <i>("+(100*d.value/totalVotes[d.data.year]).toFixed(1)+"%)</i>"+"<br>"+
-                    "</div>"
-        tooltipDisplay(html,d3.select(".tooltip"),d3.event)
-      })
-      .on("mouseout",function(){
-        tooltipHide(d3.select(".tooltip"))
-      })
+  createViz(totals)
 }
 
 var setValues = function(defaults,cb){
-
   Object.keys(defaults).forEach(function(category){
     Object.keys(defaults[category]).forEach(function(input){
       d3.select("#"+category).select("#"+input).property("value",defaults[category][input])
     })
   })
+  return cb()
+}
 
+var createViz = function(totals){
+  console.log(totals)
 
+  var table       = d3.select("#input-vizDiv").select("#totalsTable").select("tbody"),
+      time        = d3.select("#input-vizDiv").select("#timeSeries"),
+      pie         = d3.select("#input-vizDiv").select("#pie").append("svg"),
+      pieWidth    = pie.node().getBoundingClientRect().width
+      pieHeight   = pie.node().getBoundingClientRect().height
+      radius      = Math.min(pieWidth,pieHeight)/2,
+      arc         = d3.arc().outerRadius(radius - 10).innerRadius(radius/2),
+      pieFunc     = d3.pie().value(function(d){return d});
+
+      table.selectAll("td").text(function(d){
+        return numberWithCommas(Math.round(totals.totals.totals[d3.select(this).attr("id")]))
+      })
+
+      var pieG = pie.append("g")
+        .attr("transform",function(d,i){
+          return "translate("+pieWidth/2+","+radius+")"
+        })
+        .attr("height",function(d){
+          return pieHeight
+        })
+
+      pieG.selectAll(".arc")
+          .data(function(d){
+            return pieFunc(Object.keys(totals.totals).filter(function(d){
+              return d!="totals"
+            }).map(function(d){
+              return totals.totals[d].attempts
+            }))
+          }).enter().append("g")
+            .attr("class","arc")
+        .append("path")
+          .style("fill",function(d,i){
+            return colorScale[i]
+          })
+          .style("opacity",function(d,i){
+            console.log(Math.round(i/4))
+            return 1/(Math.round(i/4))
+          })
+          .attr("d",arc)
+          .on("mousemove",function(d){
+            var html = "<div><b>Tactic: </b>"+d.party+"<br>"+
+                            "<b>Year: </b>"+d.year+"<br>"+
+                            "<b>Votes: </b>"+numberWithCommas(Math.round(d.value))+" <i>("+(100*d.value/totalVotes[d.year]).toFixed(1)+"%)</i>"+"<br>"+
+                        "</div>"
+            tooltipDisplay(html,d3.select(".tooltip"),d3.event)
+          })
+          .on("mouseout",function(d){
+            tooltipHide()
+          })
 }
 
 var reset = function(){

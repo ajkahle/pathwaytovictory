@@ -98,3 +98,23 @@ input{
 #assumptionContent>.contentDiv{
   height: 35%;
 }
+
+.dropdown:hover{
+  cursor:pointer;
+}
+
+.arrow.open:before{
+    content: "";
+    display: inline-block;
+    background: url("../arrow.png") no-repeat right;
+    width: 20px;
+    height: 18px;
+}
+
+.vizWrapper{
+  height:33%;
+}
+
+.viz{
+  height:100%;
+}

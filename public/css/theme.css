@@ -237,3 +237,13 @@ h1{
   height:60%;
   display:block;
 }
+
+.summaryTable>thead>tr>th{
+  text-align:center;
+  font-size:1em;
+}
+
+.summaryTable>tbody>tr>td{
+  text-align:center;
+  font-size:1em;
+}
