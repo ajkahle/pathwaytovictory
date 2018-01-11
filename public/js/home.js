@@ -1,5 +1,6 @@
 var startup = function(campaign,scenario){
   firebase.database().ref('/campaigns/'+campaign).once("value",function(rawData){
+    console.log(rawData.val())
       var data        = rawData.val(),
           tables      = d3.selectAll(".contentRow:not(.headerRow)").append("table")
                           .datum(function(d){
@@ -7,7 +8,7 @@ var startup = function(campaign,scenario){
                           })
                           .attr("class","table"),
           colWidth    = 0,
-          margins     = {top:10,right:10,bottom:30,left:40},
+          margins     = {top:10,right:10,bottom:30,left:45},
           vizWidth    = d3.select("#totalViz").select("#barChart").node().getBoundingClientRect().width  - margins.right - margins.left,
           vizHeight   = d3.select("#vizDiv").node().getBoundingClientRect().height - margins.top - margins.bottom,
           g           = d3.select("#totalViz").selectAll("div").append("svg").attr("width",d3.select("#totalViz").select("#barChart").node().getBoundingClientRect().width).attr("height",d3.select("#vizDiv").node().getBoundingClientRect().height)
@@ -22,8 +23,14 @@ var startup = function(campaign,scenario){
           t           = d3.transition().duration(1000).ease(d3.easeLinear),
           voteTotals  = data.headers.rows["Vote Total"].map(function(row){
                           return {year:row.name,votes:row.subrows.map(function(subrow){
+                            console.log(data.data)
+                            console.log(subrow.name)
+                            console.log(row.name)
+                            console.log(data.data.filter(function(d){
+                              return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === subrow.name && parseInt(d.row) === parseInt(row.name)
+                            }))
                             return {party:subrow.name,value:data.data.filter(function(d){
-                              return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === subrow.name && d.row === parseInt(row.name)
+                              return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === subrow.name && parseInt(d.row) === parseInt(row.name)
                             }).reduce(function(a,data,i,array){
                               return a+parseFloat(data.value)
                             },0)}
@@ -180,9 +187,9 @@ var startup = function(campaign,scenario){
             .enter().append("th")
             .attr("width",function(d,i){
               if(i===0){
-                return "15%"
+                return "20%"
               }else{
-                return (1/data.headers.columns.length)*100 + "%"
+                return (1/(data.headers.columns.length))*100 + "%"
               }
             })
             .append("div")
@@ -276,9 +283,9 @@ var startup = function(campaign,scenario){
               })
               .attr("width",function(d,i){
                 if(i===0){
-                  return "15%"
+                  return "20%"
                 }else{
-                  return (1/data.headers.columns.length)*100 + "%"
+                  return (1/(data.headers.columns.length))*100 + "%"
                 }
               })
               .append("table")
@@ -293,11 +300,7 @@ var startup = function(campaign,scenario){
                     return d.name
                   })
                   .attr("width",function(d,i){
-                    if(i===0){
-                      return "15%"
-                    }else{
-                      return (1/colWidth)*100+"%"
-                    }
+                    return (1/colWidth)*100+"%"
                   })
 
       tables.append("tbody")
@@ -356,9 +359,9 @@ var startup = function(campaign,scenario){
             .enter().append("td")
               .attr("width",function(d,i){
                 if(i===0){
-                  return "15%"
+                  return "20%"
                 }else{
-                  return (1/colWidth)*100+"%"
+                  return (1/(data.headers.columns.length))*100 + "%"
                 }
               })
               .append("table")
@@ -438,6 +441,7 @@ var startup = function(campaign,scenario){
           "alias": "decimal",
           'groupSeparator':',',
           'autoGroup':true,
+          'rightAlign':false,
           min:0,
           onBeforeMask:function(value){
             return Math.round(parseFloat(value)).toString()
