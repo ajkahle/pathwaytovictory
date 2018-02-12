@@ -16,7 +16,7 @@ var startup = function(campaign,scenario){
           barX1       = d3.scaleBand().rangeRound([0,vizWidth]).paddingInner(.1),
           barX2       = d3.scaleBand().padding(.05),
           barY        = d3.scaleLinear().rangeRound([vizHeight,0]),
-          colorScale  = d3.scaleOrdinal(["#2196f3","#d50000","#00e676"]).domain(["Dem","GOP","Other"]),
+          colorScale  = d3.scaleOrdinal(["#2196f3","#d50000","#00e676","#0069c0"]).domain(["Dem","GOP","Other","Other"]),
           radius      = Math.min(vizWidth,vizHeight/2)/2,
           arc         = d3.arc().outerRadius(radius - 10).innerRadius(radius/2),
           pie         = d3.pie().value(function(d){return d.value}),
@@ -224,8 +224,10 @@ var startup = function(campaign,scenario){
                   inputData = d3.select(this.parentNode).datum(),
                   subrow    = "",
                   change    = 0,
-                  totalDemoSupport = 0
-                  if(tableName==="Support"){subrow = "[data-subrow='Dem']"}
+                  totalDemoSupport = 0,
+                  _subrow = data.headers.rows["Support"][data.headers.rows["Support"].length-1].subrows[0].name
+                  if(tableName==="Support"){subrow = "[data-subrow='"+_subrow+"']"}
+                  console.log(subrow)
 
                   inputs =  d3.selectAll("input[data-table='"+tableName+"'][data-group='"+inputData.name+"']"+subrow).each(function(d){
                     var value = parseFloat(d3.select(this).attr("data-startValue"))*(1+ui.value)
@@ -235,8 +237,10 @@ var startup = function(campaign,scenario){
                   })
 
                   if(tableName==="Support"){
-                    inputs =  d3.selectAll("input[data-table='"+tableName+"'][data-group='"+inputData.name+"'][data-subrow='GOP']").each(function(d){
-                      var value     = parseFloat(d3.select(this).attr("data-startValue"))+change,
+                    inputs =  d3.selectAll("input[data-table='"+tableName+"'][data-group='"+inputData.name+"']").filter(function(d){
+                      return d3.select(this).attr("data-subrow") != _subrow && d3.select(this).attr("data-subrow") != "Other"
+                    }).each(function(d){
+                      var value     = parseFloat(d3.select(this).attr("data-startValue"))+(change/(data.headers.rows["Support"][data.headers.rows["Support"].length-1].subrows.length/2)),
                           subgroup  = d3.select(this).attr("data-subgroup")
                       if(value>.99){value=.99}
                       if(value<.01){value=.01}
