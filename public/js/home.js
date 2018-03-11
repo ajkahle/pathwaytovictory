@@ -1,6 +1,7 @@
 var startup = function(campaign,scenario){
   firebase.database().ref('/campaigns/'+campaign).once("value",function(rawData){
-    console.log(rawData.val())
+    console.log(rawData.val().scenarios)
+
       var data        = rawData.val(),
           tables      = d3.selectAll(".contentRow:not(.headerRow)").append("table")
                           .datum(function(d){
@@ -27,10 +28,10 @@ var startup = function(campaign,scenario){
                             console.log(subrow.name)
                             console.log(row.name)
                             console.log(data.data.filter(function(d){
-                              return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === subrow.name && parseInt(d.row) === parseInt(row.name)
+                              return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === subrow.name && d.row === row.name
                             }))
                             return {party:subrow.name,value:data.data.filter(function(d){
-                              return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === subrow.name && parseInt(d.row) === parseInt(row.name)
+                              return d.table === "Vote Total" && d.group!="Data Type" && d.subrow === subrow.name && d.row === row.name
                             }).reduce(function(a,data,i,array){
                               return a+parseFloat(data.value)
                             },0)}
