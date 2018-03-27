@@ -43,7 +43,8 @@ body{
 
 .button{
   background-color: #00e676;
-  color:#000000;
+  color:white;
+  font-weight:600;
 }
 
 .spacer{
@@ -222,4 +223,27 @@ h1{
     -webkit-border-radius: 6px 6px 6px 0;
     -moz-border-radius: 6px 6px 6px 0;
     border-radius: 6px 6px 6px 0;
+}
+
+.adminPanel{
+  height:50%;
+}
+
+.table-hover:hover{
+  cursor:pointer;
+}
+
+.adminTable{
+  height:60%;
+  display:block;
+}
+
+.summaryTable>thead>tr>th{
+  text-align:center;
+  font-size:1em;
+}
+
+.summaryTable>tbody>tr>td{
+  text-align:center;
+  font-size:1em;
 }

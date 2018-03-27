@@ -7,13 +7,37 @@ var config = {
     messagingSenderId: "539080478131"
   },
   state = new Object;
-  firebase.initializeApp(config);
+  firebase.initializeApp(config),
+  usersHeaders = [
+    {
+      name:"email",
+      label:"Email",
+      width:"40%"
+    },
+    {
+      name:"fname",
+      label:"First Name",
+      width:"30%"
+    },
+    {
+      name:"lname",
+      label:"Last Name",
+      width:"30%"
+    },
+  ],
+  campaignHeaders = [
+    {
+      name:"name",
+      label:"Name",
+      width:"100%"
+    }
+  ];
 
 $(document).ready(function(){
 
   firebase.auth().onAuthStateChanged(function(user){
     if (user) {
-      firbase.database().ref('/users/'+user.uid).once("value",function(snapshot){
+      firebase.database().ref('/users/'+user.uid).once("value",function(snapshot){
         if(snapshot.val().admin){
           startup()
         }else{
@@ -223,4 +247,123 @@ var generateId = function(length) {
         retVal += charset.charAt(Math.floor(Math.random() * n));
     }
     return retVal;
+}
+
+var startup = function(){
+  firebase.database().ref('/').once('value',function(snapshot){
+    var data = snapshot.val();
+    d3.select("#userTable").select("thead")
+      .append("tr")
+      .selectAll("th")
+        .data(usersHeaders)
+        .enter().append("th")
+          .text(function(d){
+            return d.label
+          })
+          .attr("width",function(d){
+            return d.width
+          })
+    d3.select("#campaignTable").select("thead")
+      .append("tr")
+      .selectAll("th")
+        .data(campaignHeaders)
+        .enter().append("th")
+          .text(function(d){
+            return d.label
+          })
+          .attr("width",function(d){
+            return d.width
+          })
+
+    d3.select("#userTable").select("tbody")
+      .selectAll("tr")
+        .data(Object.keys(data.users).map(function(d){
+          return {
+            id:d,
+            rawData:data.users[d],
+            data:usersHeaders.map(function(name){
+              return {name:name,value:data.users[d][name.name]}
+            })
+          }
+        }))
+        .enter().append("tr")
+          .attr("class",function(d){
+          })
+          .on("click",function(row){
+            d3.select("#userDetails").selectAll("div").remove();
+            var formGroups = d3.select("#userDetails").selectAll("div")
+              .data(usersHeaders.map(function(name){
+                return {label:name.label,value:row.rawData[name.name]}
+              }))
+              .enter().append("div")
+                .attr("class","form-group col-xs-6")
+
+            formGroups.append("label")
+              .text(function(d){
+                return d.label
+              })
+
+            formGroups.append("input")
+              .attr("class","form-control")
+              .attr("type","text")
+              .property("value",function(d){
+                return d.value
+              })
+          })
+          .selectAll("td")
+            .data(function(d){
+              return d.data
+            })
+            .enter().append("td")
+              .text(function(d){
+                console.log(d)
+                return d.value
+              })
+
+      d3.select("#campaignTable").select("tbody")
+        .selectAll("tr")
+          .data(Object.keys(data.campaigns).map(function(d){
+            return {
+              id:d,
+              rawData:data.campaigns[d],
+              data:campaignHeaders.map(function(name){
+                return {name:name,value:data.campaigns[d][name.name]}
+              })
+            }
+          }))
+          .enter().append("tr")
+            .attr("class",function(d){
+            })
+            .on("click",function(row){
+              d3.select("#campaignDetails").selectAll("div").remove();
+              var formGroups = d3.select("#campaignDetails").selectAll("div")
+                .data(campaignHeaders.map(function(name){
+                  return {label:name.label,value:row.rawData[name.name]}
+                }))
+                .enter().append("div")
+                  .attr("class","form-group col-xs-6")
+
+              formGroups.append("label")
+                .text(function(d){
+                  return d.label
+                })
+
+              formGroups.append("input")
+                .attr("class","form-control")
+                .attr("type","text")
+                .property("value",function(d){
+                  return d.value
+                })
+
+            })
+            .selectAll("td")
+              .data(function(d){
+                return d.data
+              })
+              .enter().append("td")
+                .text(function(d){
+                  console.log(d)
+                  return d.value
+                })
+  })
 }

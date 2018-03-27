@@ -104,7 +104,7 @@
     <div id="newUserModal" class="modal fade" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
-          <form action="javascript:void(0);">
+          <form action="/admin/createuser" method="post">
             <div class="modal-header">
               <h4 class="modal-title">New User</h4>
             </div>
@@ -131,15 +131,15 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button class="btn btn-default button" id="accountSaveButton">Create User</button>
-              <button class="btn btn-default button" id="accountCancelButton">Cancel</button>
+              <button class="btn btn-default button" id="accountSaveButton" type="submit">Create User</button>
+              <button class="btn btn-default button" id="accountCancelButton" type="button">Cancel</button>
             </div>
           </form>
         </div>
       </div>
     </div>
 
-    <div id="newModalModal" class="modal fade" tabindex="-1" role="dialog">
+    <div id="newCampaignModal" class="modal fade" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <form action="javascript:void(0);">
@@ -169,36 +169,84 @@
           <div class="row">
             <div class="col-lg-6" id="inputContent">
 
-              <div class="row col-xs-12">
-                <div name="headers" class="row">
-                  <div class="row col-xs-12 wrapperRow">
-                    <div class="col-lg-12 tableHeaderRow wrapperRow" id="headerContent" data-category="Header">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <div class="contentDiv row col-xs-12">
-                <div name="population" class="row">
+                <div name="users" class="row adminPanel">
                   <div class="row col-xs-12 wrapperRow">
                     <div class="headerRow col-lg-12 contentRow wrapperRow">
-
+                      <h4>Users</h4>
+                      <button class="btn btn-default button btn-sm" data-toggle="modal" data-target="#newUserModal">Add New User</button>
                     </div>
                     <div class="col-lg-12 contentRow wrapperRow" id="tableContent">
+                      <table id="userTable" class="table table-hover">
+                        <thead>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <div name="userDetails" class="row adminPanel">
+                  <div class="row col-xs-12 wrapperRow">
+                    <div class="headerRow col-lg-12 contentRow wrapperRow">
+                      <h4>User Details</h4>
+                    </div>
+                    <div class="col-lg-12 contentRow wrapperRow" id="tableContent">
+                      <div id="userDetails">
+                      </div>
+                      <table class="table table-condensed adminTable">
+                        <thead>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                      <div id="userButtons" class="row col-xs-12">
+                        <button id="deleteUser" class="btn button errorButton">Delete</button>
+                        <button id="editUser" class="btn btn-default button">Save Edits</button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
             </div>
             <div class="col-lg-6">
 
-              <div class="totalsDiv row col-xs-12">
-                <div name="totals" class="row">
+              <div class="contentDiv row col-xs-12">
+                <div name="campaigns" class="row adminPanel">
                   <div class="row col-xs-12 wrapperRow">
-                    <div>
-                      <h4></h4>
+                    <div class="headerRow col-lg-12 contentRow wrapperRow">
+                      <h4>Campaigns</h4>
+                      <button class="btn btn-default button btn-sm" data-toggle="modal" data-target="#newCampaignModal">Add New Campaign</button>
                     </div>
-                    <div class="col-lg-12 contentRow wrapperRow" id="formContent">
+                    <div class="col-lg-12 contentRow wrapperRow" id="tableContent">
+                      <table id="campaignTable" class="table table-hover">
+                        <thead>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <div name="campaignDetails" class="row adminPanel">
+                  <div class="row col-xs-12 wrapperRow">
+                    <div class="headerRow col-lg-12 contentRow wrapperRow">
+                      <h4>Campaign Details</h4>
+                    </div>
+                    <div class="col-lg-12 contentRow wrapperRow" id="tableContent">
+                      <div id="campaignDetails">
+                      </div>
+                      <table class="table table-condensed adminTable">
+                        <thead>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                      <div id="campaignButtons" class="row col-xs-12">
+                        <button id="deleteCampaign" class="btn button errorButton">Delete</button>
+                        <button id="editCampaign" class="btn btn-default button">Save Edits</button>
+                      </div>
                     </div>
                   </div>
                 </div>
