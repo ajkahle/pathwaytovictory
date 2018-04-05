@@ -120,7 +120,7 @@ var startup = function(campaign,scenario){
             return d.subrow === "Total" && d.group!="Data Type";
           }),function(d){
             return parseInt(d.value);
-          })]).nice();
+          })*.75]).nice();
 
           var barGroups = d3.select("#barChart").select("g").append("g")
             .selectAll("g")
