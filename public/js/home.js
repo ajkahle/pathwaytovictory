@@ -116,8 +116,8 @@ var startup = function(campaign,scenario){
           vizDetails.barX2.domain(data.headers.rows["Vote Total"].map(function(d){
             return d.name
           })).rangeRound([0,barX1.bandwidth()]);
-          vizDetails.barY.domain([0,d3.max(data.data.filter(function(d){
-            return d.subrow === "Registration" && d.group!="Data Type";
+          vizDetails.barY.domain([0,d3.sum(data.data.filter(function(d){
+            return d.subrow === "Total" && d.group!="Data Type";
           }),function(d){
             return parseInt(d.value);
           })]).nice();
