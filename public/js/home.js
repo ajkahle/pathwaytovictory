@@ -96,7 +96,7 @@ var startup = function(campaign,scenario){
                 .selectAll("td")
                   .data(function(d){
                     return [{value:d.year,party:"year"}].concat(d.votes.map(function(vote){
-                      return {value:numberWithCommas(vote.value),year:d.year,party:vote.party}
+                      return {value:numberWithCommas(parseInt(vote.value)),year:d.year,party:vote.party}
                     }))
                   })
                   .enter().append("td")
