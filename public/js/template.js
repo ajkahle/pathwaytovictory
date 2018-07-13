@@ -169,6 +169,8 @@ var checkCampaigns = function(user){
     if(data.length>1){
       setCampaignModal(data,null)
     }else{
+      state.campaign = data[0]
+      console.log(state)
       startup(data[0])
     }
   })
